@@ -1,4 +1,4 @@
-
+// Zachary Olpin
 package arrays_zachary.olpin;
 
 import java.io.File;
@@ -14,6 +14,7 @@ public class Arrays_ZacharyOlpin
         double[] gpas;
         String[] ids, splitLine;
 
+        // Get number of rows in file
         reader = new Scanner(new File("studentdata.txt"));
         numRows = 0;
         while (reader.hasNextLine())
@@ -23,6 +24,7 @@ public class Arrays_ZacharyOlpin
         }
         reader.close();
 
+        // Read file and store student data
         ids = new String[numRows];
         gpas = new double[numRows];
         reader = new Scanner(new File("studentdata.txt"));
@@ -34,6 +36,7 @@ public class Arrays_ZacharyOlpin
         }
         reader.close();
 
+        // Print student rankings and histogram
         printStudents(ids, gpas);
         printHistogram(gpas);
     }
@@ -43,6 +46,7 @@ public class Arrays_ZacharyOlpin
         int[] gpaBracketTotals;
         double totalStudents;
 
+        // Get count of occurrences of gpas for each bracket
         gpaBracketTotals = new int[8];
         for (Double g : gpas) {
             if (g < 0.5) gpaBracketTotals[0] += 1;
@@ -55,8 +59,8 @@ public class Arrays_ZacharyOlpin
             else if (g >= 3.5) gpaBracketTotals[7] += 1;
         }
 
+        // Print histogram to console
         totalStudents = Arrays.stream(gpaBracketTotals).sum();
-
         System.out.println( "\nStudent GPA distribution by octile\n"
                           + "----------------------------------------");
         for (int i = 0; i < gpaBracketTotals.length; i++)
@@ -78,11 +82,14 @@ public class Arrays_ZacharyOlpin
         HashMap<Double, Integer> gpaCounts;
 
         students = new HashMap<>(ids.length);
-        sortedGpas = gpas.clone();
+        sortedGpas = gpas.clone(); // Avoid mutating original array
         Arrays.sort(sortedGpas);
         ranks = new int[ids.length];
         lowest = 4.0;
         currentRank = ids.length;
+        
+        // Loop backwards through ids and make a 1-for-1 array of ranks where ranks[n]
+        // is the correct rank for the student ID at 
         for (int i = ids.length - 1; i >= 0; i--)
         {
             if (sortedGpas[i] < lowest)
@@ -90,16 +97,20 @@ public class Arrays_ZacharyOlpin
                 lowest = sortedGpas[i];
                 currentRank = i;
             }
-            ranks[i] = ids.length - 1 - currentRank;
+            ranks[i] = ids.length - currentRank + 1;
+            
+            // Store student data in hashmap for easier lookup
             students.put(ids[i], gpas[i]);
         }
 
+        // Second hashmap with counts for occurrences of each gpa.
         gpaCounts = new HashMap<>(ranks.length);
         for (Double gpa: sortedGpas)
         {
-                gpaCounts.put(gpa, gpaCounts.getOrDefault(gpa, 0) + 1);
+            gpaCounts.put(gpa, gpaCounts.getOrDefault(gpa, 0) + 1);
         }
-
+        
+        // Print student ID / Rank / GPA. If rank tied with others, show how many in group.
         for (int i = 0; i < ids.length; i++)
         {
             ties = gpaCounts.get(students.get(ids[i])) - 1;
